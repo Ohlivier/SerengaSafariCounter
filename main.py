@@ -52,7 +52,7 @@ def run_object_detection(ip, count):
     cv2.destroyAllWindows()
 
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/', methods=['POST'])
 def run_object_detection_on_request():
     data = request.get_json()
     ip_address = data.get('ip')
