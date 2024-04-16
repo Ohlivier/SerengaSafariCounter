@@ -77,6 +77,10 @@ def update(num):
     count.value += int(num)
     return "Done"
 
+@app.route('/espget')
+def espget():
+    return str(count.value)
+
 if __name__ == '__main__':
     app.run()
 
