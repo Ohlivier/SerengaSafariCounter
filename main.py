@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from multiprocessing import Process, Value
 from ultralytics import YOLO
 from ultralytics.solutions import object_counter
@@ -64,10 +64,14 @@ def run_object_detection_on_request():
     print("Object detection process started")
     return 'Object detection process started.'
 
-@app.route('/current')
+@app.route('/update')
 def current():
-    print(count.value)
-    return str(count.value)
+    current = count.value
+    return str(current)
+
+@app.route('/total')
+def total():
+    return render_template('index.html')
 
 @app.route('/update/<num>')
 def update(num):
