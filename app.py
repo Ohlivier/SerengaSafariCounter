@@ -72,22 +72,6 @@ def run_object_detection_on_request():
     print("Object detection process started")
     return 'Object detection process started.'
 
-
-# @app.route('/controll', methods=['POST'])  # sample voor buspanel mischien nog
-# def .route('/panel')  # HIER BUSPANNEL
-# form = busform()  # niet aangemaakt
-# if form.validate_on_submit():
-#     global bus_var
-#     data = form.bus.data
-#     if data:
-#         bus = data
-#     else:
-#         bus = 1
-#     bus_var = bus
-
-
-#     return render_template('buscontroller.html')
-
 @app.route('/update')
 def current():
     return str(count.value)
@@ -111,11 +95,11 @@ def current_wachtijd():
     return tijdbereken(wachtijd_var, bus_var)
 
 
-print(tijdbereken(140, 3))
 
 
 @app.route('/espget')
 def espget():
+    return str(count.value)
 
 @app.route('/aantal_bussen', methods=['POST'])
 def aantal_bussen():
