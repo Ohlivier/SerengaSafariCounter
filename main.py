@@ -11,6 +11,15 @@ classes_to_count = [0, 2]  # person and car classes for count
 count = Value('i', 0)
 
 
+def tijdbereken(currentwachtrij, bussen):  # fuctie appart gezet voor als hij door andere moet worden aangesproken
+    wachttijd_var = 12 if bussen != 3 or currentwachtrij < 70 else 8
+    if currentwachtrij % 70 != 0:
+        wachttijd = (currentwachtrij // 70) * wachttijd_var
+    else:
+        wachttijd = (currentwachtrij // 70 + 1) * wachttijd_var
+    return wachttijd
+
+
 def run_object_detection(ip, count):
     cap = cv2.VideoCapture(f"http://{ip}:81/stream")
     assert cap.isOpened(), "Error reading video file"
@@ -63,24 +72,52 @@ def run_object_detection_on_request():
     print("Object detection process started")
     return 'Object detection process started.'
 
+
+# @app.route('/controll', methods=['POST'])  # sample voor buspanel mischien nog
+# def .route('/panel')  # HIER BUSPANNEL
+# form = busform()  # niet aangemaakt
+# if form.validate_on_submit():
+#     global bus_var
+#     data = form.bus.data
+#     if data:
+#         bus = data
+#     else:
+#         bus = 1
+#     bus_var = bus
+
+
+#     return render_template('buscontroller.html')
+
 @app.route('/update')
 def current():
-    current = count.value
-    return str(current)
+    return str(count.value)
+
 
 @app.route('/total')
 def total():
     return render_template('index.html')
+
 
 @app.route('/update/<num>')
 def update(num):
     count.value += int(num)
     return "Done"
 
+
+@app.route('/wachttijden')  # wachtrij view
+def current_wachtijd():
+    wachtijd_var = count.value
+    bus_var = ""  # bussen moet uit de website panel komen
+    return tijdbereken(wachtijd_var, bus_var)
+
+
+print(tijdbereken(140, 3))
+
+
 @app.route('/espget')
 def espget():
     return str(count.value)
 
+
 if __name__ == '__main__':
     app.run()
-
