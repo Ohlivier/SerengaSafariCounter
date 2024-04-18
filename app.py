@@ -78,7 +78,7 @@ def run_object_detection_on_request():
 
 @app.route('/update')
 def current():
-    return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)}"
+    return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)} minuten"
 
 
 @app.route('/total')
