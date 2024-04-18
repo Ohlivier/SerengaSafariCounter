@@ -9,11 +9,14 @@ app = Flask(__name__)
 model = YOLO("yolov8n.pt")
 classes_to_count = [0, 2]  # person and car classes for count
 count = Value('i', 0)
+bussen = 3
 
 
 def tijdbereken(currentwachtrij, bussen):  # fuctie appart gezet voor als hij door andere moet worden aangesproken
     wachttijd_var = 12 if bussen != 3 or currentwachtrij < 70 else 8
-    if currentwachtrij % 70 != 0:
+    if currentwachtrij < 70:
+        wachttijd = 0
+    elif currentwachtrij % 70 != 0:
         wachttijd = (currentwachtrij // 70) * wachttijd_var
     else:
         wachttijd = (currentwachtrij // 70 + 1) * wachttijd_var
@@ -72,9 +75,10 @@ def run_object_detection_on_request():
     print("Object detection process started")
     return 'Object detection process started.'
 
+
 @app.route('/update')
 def current():
-    return str(count.value)
+    return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)}"
 
 
 @app.route('/total')
@@ -95,18 +99,26 @@ def current_wachtijd():
     return tijdbereken(wachtijd_var, bus_var)
 
 
-
-
 @app.route('/espget')
 def espget():
     return str(count.value)
 
+
 @app.route('/aantal_bussen', methods=['POST'])
 def aantal_bussen():
+    global bussen
     data = request.json
-    bussen =  data.get("bussen")  
+    bussen = data.get("bussen")
     response = {'message': 'Aantal bussen succesvol bijgewerk', 'bussen': bussen}
     return jsonify(response)
+
+
+@app.route('/bus/<num>')
+def bus(num):
+    global bussen
+    bussen = num
+    return "Done"
+
 
 if __name__ == '__main__':
     app.run()
