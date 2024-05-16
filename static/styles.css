@@ -42,6 +42,13 @@ body{
     top: -25px;
 }
 
+.power{
+    font-size: 70%;
+    font-family: Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    position: relative;
+    top: 80px;
+    left: 34%;
+}
 
 
 @media only screen and (max-width: 600px) {

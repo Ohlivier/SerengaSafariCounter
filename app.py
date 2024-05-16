@@ -6,6 +6,7 @@ import cv2
 
 app = Flask(__name__)
 
+Fillip = "Cool"
 model = YOLO("yolov8n.pt")
 classes_to_count = [0, 2]  # person and car classes for count
 count = Value('i', 0)
@@ -76,10 +77,20 @@ def run_object_detection_on_request():
     return 'Object detection process started.'
 
 
-@app.route('/update')
+'''@app.route('/update')
 def current():
     return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)} minuten"
+'''
 
+@app.route('/update')
+def current():
+    wachttijd = tijdbereken(count.value, bussen)
+    return render_template('scherm.html', wachttijd=wachttijd)
+
+@app.route('/api/wachttijd')
+def api_wachttijd():
+    wachttijd = tijdbereken(count.value, bussen)
+    return jsonify({'wachttijd': wachttijd})
 
 @app.route('/total')
 def total():
@@ -87,6 +98,7 @@ def total():
 
 
 @app.route('/update/<num>')
+#Deze functie/view voegt mensen toe aan de count
 def update(num):
     count.value += int(num)
     return "Done"
@@ -97,6 +109,7 @@ def current_wachtijd():
     wachtijd_var = count.value
     bus_var = ""  # bussen moet uit de website panel komen
     return tijdbereken(wachtijd_var, bus_var)
+
 
 
 @app.route('/espget')
@@ -113,6 +126,7 @@ def aantal_bussen():
     return jsonify(response)
 
 
+
 @app.route('/bus/<num>')
 def bus(num):
     global bussen
@@ -120,5 +134,7 @@ def bus(num):
     return "Done"
 
 
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
