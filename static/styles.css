@@ -1,0 +1,74 @@
+@font-face{ 
+    font-family: CuteAnimal;
+    src: url(/static/CUTE_ANIMAL\ \(1\).ttf); 
+   } 
+
+*{
+  
+    font-family: CuteAnimal;
+    overflow-x: none;
+}
+
+body{
+    background-image: linear-gradient(rgba(115, 30, 30, 0.939), rgb(119, 37, 37)), url(/static/pictures/serenga-1.png);
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    overflow-x:hidden;
+
+}
+
+
+
+#wildlands {
+    position: relative;
+    top: -14px;
+    left: -2%;
+}
+
+.tent{
+    color: rgba(255, 255, 255, 0.878);
+    position: absolute;
+    left: 28%;
+    top: -1%;
+}
+
+.text{
+    font-size: 150%;
+    position: relative;
+    left: -28%;
+    top: -25px;
+}
+
+.power{
+    font-size: 70%;
+    font-family: Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    position: relative;
+    top: 80px;
+    left: 34%;
+}
+
+
+@media only screen and (max-width: 600px) {
+    .container {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    header h1 {
+        font-size: 28px;
+    }
+
+    .data {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .data p {
+        font-size: 16px;
+    }
+}
+
+
