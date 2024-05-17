@@ -7,7 +7,7 @@ import cv2
 app = Flask(__name__)
 
 model = YOLO("yolov8n.pt")
-classes_to_count = [0, 2]  # person and car classes for count
+classes_to_count = [0]  # person and car classes for count
 count = Value('i', 0)
 bussen = 3
 
