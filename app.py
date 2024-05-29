@@ -77,10 +77,10 @@ def run_object_detection_on_request():
     return 'Object detection process started.'
 
 
-'''@app.route('/update')
-def current():
+@app.route('/totaldebug')
+def totaldebug():
     return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)} minuten"
-'''
+
 
 @app.route('/update')
 def current():
@@ -133,7 +133,18 @@ def bus(num):
     bussen = num
     return "Done"
 
-
+@app.route('/test', methods=['GET','POST'])
+def test():
+    global bussen
+    data = request.json
+    bussen = data['bussen']
+    print(f"""
+    ----------- DEBUG -----------
+    Data is {data}
+    Rijdende bussen is nu {bussen}
+    -----------------------------
+    """)
+    return "het werkt"
 
 
 if __name__ == '__main__':
