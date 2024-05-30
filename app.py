@@ -144,7 +144,7 @@ def test():
     Rijdende bussen is nu {bussen}
     -----------------------------
     """)
-    return "het werkt"
+    return f"Server bussen is nu {bussen}"
 
 
 if __name__ == '__main__':
