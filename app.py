@@ -6,7 +6,7 @@ import cv2
 
 app = Flask(__name__)
 
-Fillip = "Cool"
+Fillip = "¬Cool"
 model = YOLO("yolov8n.pt")
 classes_to_count = [0]  # person and car classes for count
 count = Value('i', 0)
@@ -85,7 +85,8 @@ def totaldebug():
 @app.route('/update')
 def current():
     wachttijd = tijdbereken(count.value, bussen)
-    return render_template('scherm.html', wachttijd=wachttijd)
+    aantal_personen = count.value
+    return render_template('scherm.html', wachttijd=wachttijd,bussen=bussen, aantal_personen=aantal_personen)
 
 @app.route('/api/wachttijd')
 def api_wachttijd():
