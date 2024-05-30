@@ -7,7 +7,7 @@
     <title>Wachttijd</title>
 </head>
 <body>
-    <div>
+
     <div class="tent">
         <img  id="wildlands" src="/static/wildlands-logobalk.png" alt="" width="700">
         <pre class="text">
@@ -20,20 +20,14 @@
             </h2>
         </pre>
 
+        <div class="overzicht">
+            <span id="bussen">🚎:  {{bussen}}</span> <br>
+            <span id="personen">🧍‍♂️: {{aantal_personen}}</span>
+        </div>
 
         <span class="power">Powered by Q-Experience</span>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-<script>
-    function updateWachttijd(){
-        $.get("/api/wachttijd", function(data){
-            $("#wachttijd").text(data.wachttijd);
-        });
-    }
-    setInterval(updateWachttijd, 10000);
-</script>
 
 </body>
 </html>
