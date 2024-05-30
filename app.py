@@ -3,14 +3,30 @@ from multiprocessing import Process, Value
 from ultralytics import YOLO
 from ultralytics.solutions import object_counter
 import cv2
+import logging
+import os
+import json
+
+# Configuring logging
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
 Fillip = "¬Cool"
 model = YOLO("yolov8n.pt")
-classes_to_count = [0]  # person and car classes for count
+classes_to_count = [0, 2]  # person and car classes for count
 count = Value('i', 0)
-bussen = 3
+bussen = 2
+
+# Laad count.value vanuit file als het bestaat 
+count_file = "count.json"
+if os.path.exists(count_file):
+    with open(count_file, 'r') as f:
+        count.value = json.load(f).get('count', 0)
+
+def save_count():
+    with open(count_file, 'w') as f:
+        json.dump({'count': count.value}, f)
 
 
 def tijdbereken(currentwachtrij, bussen):  # fuctie appart gezet voor als hij door andere moet worden aangesproken
@@ -60,6 +76,8 @@ def run_object_detection(ip, count):
                 counter.class_wise_count['perso']['in'] = 0
                 counter.class_wise_count['perso']['out'] = 0
 
+        save_count()  # Het slaat aantal mensen op, dit waren we vergeten.
+
     cap.release()
     video_writer.release()
     cv2.destroyAllWindows()
@@ -77,10 +95,10 @@ def run_object_detection_on_request():
     return 'Object detection process started.'
 
 
-@app.route('/totaldebug')
-def totaldebug():
+'''@app.route('/update')
+def current():
     return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)} minuten"
-
+'''
 
 @app.route('/update')
 def current():
@@ -102,6 +120,8 @@ def total():
 #Deze functie/view voegt mensen toe aan de count
 def update(num):
     count.value += int(num)
+    save_count() # De aantal moet ook gesaved worden
+    logging.debug(f"Aantal mensen geüpdate by {num}. nieuwe waarde: {count.value}") # test
     return "Done"
 
 
@@ -123,6 +143,7 @@ def aantal_bussen():
     global bussen
     data = request.json
     bussen = data.get("bussen")
+    logging.debug(f"Bussen geüpdate naar: {bussen}")
     response = {'message': 'Aantal bussen succesvol bijgewerk', 'bussen': bussen}
     return jsonify(response)
 
@@ -131,21 +152,10 @@ def aantal_bussen():
 @app.route('/bus/<num>')
 def bus(num):
     global bussen
-    bussen = num
+    bussen = int(num)
+    logging.debug(f"Bussen geüpdate via bus route naar: {bussen}")
     return "Done"
 
-@app.route('/test', methods=['GET','POST'])
-def test():
-    global bussen
-    data = request.json
-    bussen = data['bussen']
-    print(f"""
-    ----------- DEBUG -----------
-    Data is {data}
-    Rijdende bussen is nu {bussen}
-    -----------------------------
-    """)
-    return f"Server bussen is nu {bussen}"
 
 
 if __name__ == '__main__':
