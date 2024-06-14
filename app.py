@@ -13,10 +13,11 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 
 Fillip = "¬Cool"
-model = YOLO("yolov8n.pt")
+model = YOLO("yolov3-tinyu.pt")
 classes_to_count = [0, 2]  # person and car classes for count
 count = Value('i', 0)
 bussen = 2
+delta_wachttijd = 0
 
 # Laad count.value vanuit file als het bestaat 
 count_file = "count.json"
@@ -24,12 +25,14 @@ if os.path.exists(count_file):
     with open(count_file, 'r') as f:
         count.value = json.load(f).get('count', 0)
 
+
 def save_count():
     with open(count_file, 'w') as f:
         json.dump({'count': count.value}, f)
 
 
 def tijdbereken(currentwachtrij, bussen):  # fuctie appart gezet voor als hij door andere moet worden aangesproken
+    global delta_wachttijd
     wachttijd_var = 12 if bussen != 3 or currentwachtrij < 70 else 8
     if currentwachtrij < 70:
         wachttijd = 0
@@ -37,7 +40,7 @@ def tijdbereken(currentwachtrij, bussen):  # fuctie appart gezet voor als hij do
         wachttijd = (currentwachtrij // 70) * wachttijd_var
     else:
         wachttijd = (currentwachtrij // 70 + 1) * wachttijd_var
-    return wachttijd
+    return wachttijd + delta_wachttijd
 
 
 def run_object_detection(ip, count):
@@ -95,21 +98,23 @@ def run_object_detection_on_request():
     return 'Object detection process started.'
 
 
-'''@app.route('/update')
-def current():
+@app.route('/debug')
+def currentdebug():
     return f"Huidig aantal mensen in de wachtrij: {str(count.value)} <br> Aantal bussen: {bussen} <br> Wachttijd = {tijdbereken(count.value, bussen)} minuten"
-'''
+
 
 @app.route('/update')
 def current():
     wachttijd = tijdbereken(count.value, bussen)
     aantal_personen = count.value
-    return render_template('scherm.html', wachttijd=wachttijd,bussen=bussen, aantal_personen=aantal_personen)
+    return render_template('scherm.html', wachttijd=wachttijd, bussen=bussen, aantal_personen=aantal_personen)
+
 
 @app.route('/api/wachttijd')
 def api_wachttijd():
     wachttijd = tijdbereken(count.value, bussen)
     return jsonify({'wachttijd': wachttijd})
+
 
 @app.route('/total')
 def total():
@@ -117,11 +122,11 @@ def total():
 
 
 @app.route('/update/<num>')
-#Deze functie/view voegt mensen toe aan de count
+# Deze functie/view voegt mensen toe aan de count
 def update(num):
     count.value += int(num)
-    save_count() # De aantal moet ook gesaved worden
-    logging.debug(f"Aantal mensen geüpdate by {num}. nieuwe waarde: {count.value}") # test
+    save_count()  # De aantal moet ook gesaved worden
+    logging.debug(f"Aantal mensen geüpdate by {num}. nieuwe waarde: {count.value}")  # test
     return "Done"
 
 
@@ -130,7 +135,6 @@ def current_wachtijd():
     wachtijd_var = count.value
     bus_var = ""  # bussen moet uit de website panel komen
     return tijdbereken(wachtijd_var, bus_var)
-
 
 
 @app.route('/espget')
@@ -142,11 +146,28 @@ def espget():
 def aantal_bussen():
     global bussen
     data = request.json
+    print(data)
     bussen = data.get("bussen")
     logging.debug(f"Bussen geüpdate naar: {bussen}")
     response = {'message': 'Aantal bussen succesvol bijgewerk', 'bussen': bussen}
     return jsonify(response)
 
+
+@app.route('/wachttijd_update', methods=['POST'])
+def wachttijd_update():
+    global delta_wachttijd
+    data = request.json
+    update_tijd = data.get("wachttijd")
+    delta_wachttijd += update_tijd
+    wachttijd_nu = tijdbereken(count.value, bussen)
+    if wachttijd_nu > 0:
+        logging.debug(f"Wachttijd delta is nu {delta_wachttijd}")
+        response = {'message': 'Wachttijd bijgewerkt', 'wachttijd_delta': delta_wachttijd}
+    else:
+        print("Wachttijd kan niet negatief zijn")
+        response = {'message': 'Wachttijd mag niet negatief zijn'}
+        delta_wachttijd += 5
+    return jsonify(response)
 
 
 @app.route('/bus/<num>')
@@ -155,7 +176,6 @@ def bus(num):
     bussen = int(num)
     logging.debug(f"Bussen geüpdate via bus route naar: {bussen}")
     return "Done"
-
 
 
 if __name__ == '__main__':
